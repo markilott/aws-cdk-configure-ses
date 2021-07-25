@@ -1,0 +1,11 @@
+node_modules
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
+
+# CDK context - this would be committed in a private repo, but is excluded in this public demo
+cdk.context.json
+
+# Parcel default cache directory
+.parcel-cache
