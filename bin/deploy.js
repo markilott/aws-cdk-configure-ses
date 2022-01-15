@@ -6,11 +6,11 @@
  */
 
 /* eslint-disable no-new */
-const cdk = require('@aws-cdk/core');
+const { App } = require('aws-cdk-lib');
 const { SesConfigStack } = require('../lib/ses-config-stack');
 const { sesAttr, domainAttr } = require('../lib/options');
 
-const app = new cdk.App();
+const app = new App();
 
 // Use account details from default AWS CLI credentials:
 const account = process.env.CDK_DEFAULT_ACCOUNT;
