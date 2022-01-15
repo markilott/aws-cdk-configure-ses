@@ -1,6 +1,6 @@
 {
   "name": "aws-configure-ses",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "AWS CDK Configure SES Email Settings for Domain",
   "main": "bin/deploy.js",
   "directories": {
@@ -12,12 +12,7 @@
   "author": "Mark Ilott",
   "license": "MIT",
   "dependencies": {
-    "@aws-cdk/aws-s3": "^1.114.0",
-    "@aws-cdk/custom-resources": "^1.114.0",
-    "@aws-cdk/aws-iam": "^1.114.0",
-    "@aws-cdk/core": "^1.114.0",
-    "@aws-cdk/aws-route53": "^1.114.0",
-    "@aws-cdk/aws-sns": "^1.114.0",
-    "@aws-cdk/aws-sns-subscriptions": "^1.114.0"
+    "aws-cdk-lib": "^2.8.0",
+    "constructs": "^10.0.34"
   }
 }
