@@ -1,4 +1,4 @@
 {
-  "app": "node bin/deploy.js",
-  "context": {}
-}
+    "app": "npx ts-node --prefer-ts-exts bin/deploy.ts",
+    "context": {}
+  }
