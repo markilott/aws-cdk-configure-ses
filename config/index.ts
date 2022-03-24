@@ -1,4 +1,4 @@
-const sesAttr = {
+export const sesAttr = {
     // Email addresses will be added to the verified list and will be sent a confirmation email
     emailList: [
         'testuser@mydomain.com',
@@ -11,10 +11,8 @@ const sesAttr = {
     sendDeliveryNotifications: true,
 };
 
-const domainAttr = {
+export const domainAttr = {
     // zoneName for the email domain is required. hostedZoneId for a Route53 domain is optional.
     zoneName: 'mydomain.com',
     hostedZoneId: '',
 };
-
-module.exports = { sesAttr, domainAttr };

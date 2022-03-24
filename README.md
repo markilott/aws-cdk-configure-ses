@@ -1,6 +1,6 @@
 # AWS CDK SES Domain Configuration
 
-This Javascript CDK project configures a domain identity in SES.
+This Typescript CDK project configures a domain identity in SES.
 
 After the configuration SES will be enabled for sending email on your domain.
 
@@ -24,7 +24,7 @@ Assuming you have the AWS CLI and CDK installed and configured already...
 Setup the project:
 - Clone the repo
 - run `npm install`
-- Update the `lib/options.js` file with your own preferences
+- Update the `config/index.ts` file with your own preferences
 
 &nbsp;
 

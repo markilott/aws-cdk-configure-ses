@@ -1,24 +1,38 @@
 /* eslint-disable no-new */
-const { AwsCustomResource, AwsCustomResourcePolicy } = require('aws-cdk-lib').custom_resources;
-const { HostedZone, CnameRecord } = require('aws-cdk-lib').aws_route53;
-const { PolicyStatement, Effect } = require('aws-cdk-lib').aws_iam;
-const { Topic } = require('aws-cdk-lib').aws_sns;
-const { EmailSubscription } = require('aws-cdk-lib').aws_sns_subscriptions;
-const { Stack, CfnOutput } = require('aws-cdk-lib');
+import { AwsCustomResource, AwsCustomResourcePolicy } from 'aws-cdk-lib/custom-resources';
+import {
+    HostedZone, CnameRecord, HostedZoneAttributes, IHostedZone,
+} from 'aws-cdk-lib/aws-route53';
+import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
+import { Topic } from 'aws-cdk-lib/aws-sns';
+import { EmailSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
+import { Stack, CfnOutput, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 
 const reqEventTypes = ['REJECT', 'BOUNCE', 'COMPLAINT'];
 const deliveryEventTypes = ['SEND', 'DELIVERY', 'OPEN'];
 
-class SesConfigStack extends Stack {
-    /**
-     * Configures SES domain and verified email addresses.
-     * A Route53 Domain in the same Account is required.
-     *
-     * @param {cdk.Construct} scope
-     * @param {string} id
-     * @param {cdk.StackProps=} props
-     */
-    constructor(scope, id, props) {
+interface SesConfigStackProps extends StackProps {
+    sesAttr: {
+        emailList: string[],
+        notifList: string[],
+        sendDeliveryNotifications: boolean,
+    },
+    domainAttr: HostedZoneAttributes,
+}
+
+/**
+ * Configures SES domain and verified email addresses.
+ * A Route53 Domain in the same Account is required.
+ *
+ * @param {Construct} scope
+ * @param {string} id
+ * @param {StackProps=} props
+ */
+export class SesConfigStack extends Stack {
+    zone: IHostedZone;
+
+    constructor(scope: Construct, id: string, props: SesConfigStackProps) {
         super(scope, id, props);
 
         console.log('Stack Name: ', this.stackName);
@@ -113,7 +127,7 @@ class SesConfigStack extends Stack {
         snsDest.node.addDependency(configSet);
 
         // Add email addresses to the SNS notification topic
-        notifList.forEach((email) => sesNotificationsTopic.addSubscription(new EmailSubscription(email)));
+        notifList.forEach((email: string) => sesNotificationsTopic.addSubscription(new EmailSubscription(email)));
 
         // Add and verify Domain using DKIM
         const domainIdentity = new AwsCustomResource(this, 'domainIdentity', {
@@ -185,5 +199,3 @@ class SesConfigStack extends Stack {
         });
     }
 }
-
-module.exports = { SesConfigStack };
