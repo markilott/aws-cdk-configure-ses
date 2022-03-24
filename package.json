@@ -7,8 +7,7 @@
     "license": "MIT",
     "scripts": {
         "cdk": "cdk",
-        "deploy": "cdk deploy --require-approval=never",
-        "build": "bash bin/build.sh"
+        "deploy": "cdk deploy --require-approval=never"
     },
     "devDependencies": {
         "@types/node": "^14.14.31",
