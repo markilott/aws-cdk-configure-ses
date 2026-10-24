@@ -1,4 +1,3 @@
-/* eslint-disable no-new */
 import { AwsCustomResource, AwsCustomResourcePolicy } from 'aws-cdk-lib/custom-resources';
 import {
     HostedZone, CnameRecord, HostedZoneAttributes, IHostedZone,
@@ -6,6 +5,7 @@ import {
 import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import { EmailSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
+import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Stack, CfnOutput, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
@@ -86,7 +86,9 @@ export class SesConfigStack extends Stack {
                 },
             },
             policy: AwsCustomResourcePolicy.fromStatements([sesPolicy]),
-            logRetention: 7,
+            logGroup: new LogGroup(this, `${ConfigurationSetName}Logs`, {
+                retention: RetentionDays.ONE_WEEK,
+            }),
         });
 
         // Add an SNS Destination for SES notifications
@@ -122,7 +124,9 @@ export class SesConfigStack extends Stack {
                 },
             },
             policy: AwsCustomResourcePolicy.fromStatements([sesPolicy]),
-            logRetention: 7,
+            logGroup: new LogGroup(this, `${EventDestinationName}Logs`, {
+                retention: RetentionDays.ONE_WEEK,
+            }),
         });
         snsDest.node.addDependency(configSet);
 
@@ -148,7 +152,9 @@ export class SesConfigStack extends Stack {
                 },
             },
             policy: AwsCustomResourcePolicy.fromStatements([sesPolicy]),
-            logRetention: 7,
+            logGroup: new LogGroup(this, 'domainIdentityLogs', {
+                retention: RetentionDays.ONE_WEEK,
+            }),
         });
         domainIdentity.node.addDependency(configSet);
         // Assuming there are always 3 tokens returned as that is what all the docs indicate
@@ -175,9 +181,20 @@ export class SesConfigStack extends Stack {
             });
         });
 
-        // Add email addresses and send verification emails
-        emailList.forEach((email, i) => {
-            new AwsCustomResource(this, `emailIdentity${i + 1}`, {
+        /**
+         * Add email addresses and send verification emails.
+         *
+         * Each identity is keyed by the email address itself (not its position in
+         * emailList) so that adding, removing or reordering entries only ever
+         * touches the resource for that specific email. Keying by array index
+         * previously meant every entry after an insertion/removal point would shift
+         * onto a different underlying Custom Resource, causing CloudFormation to
+         * treat unrelated email identities as updates (and sometimes replacements)
+         * to the wrong email, rather than a simple add/remove of the one that
+         * actually changed.
+         */
+        emailList.forEach((email) => {
+            new AwsCustomResource(this, `emailIdentity-${email}`, {
                 onUpdate: {
                     service: 'SESV2',
                     action: 'createEmailIdentity',
@@ -194,7 +211,9 @@ export class SesConfigStack extends Stack {
                     },
                 },
                 policy: AwsCustomResourcePolicy.fromStatements([sesPolicy]),
-                logRetention: 7,
+                logGroup: new LogGroup(this, `emailIdentity-${email}-Logs`, {
+                    retention: RetentionDays.ONE_WEEK,
+                }),
             });
         });
     }
